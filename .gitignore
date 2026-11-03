@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# MATLAB temporary files
+*.asv
+*.autosave
+*.log
+slprj/
+codegen/
+
+# Generated models and datasets
+models/*.mat
+data/train/
+data/validation/
+data/test/
