@@ -13,3 +13,7 @@ models/*.mat
 data/train/
 data/validation/
 data/test/
+
+# MNIST dataset and trained models
+/datasets/mnist/
+/models/
