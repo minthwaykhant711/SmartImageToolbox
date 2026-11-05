@@ -8,8 +8,10 @@
 slprj/
 codegen/
 
-# Generated models and datasets
-models/*.mat
+# Data files
 data/train/
 data/validation/
 data/test/
+
+# MNIST dataset (too large for GitHub)
+/datasets/mnist/
