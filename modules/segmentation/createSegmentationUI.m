@@ -47,6 +47,12 @@ function ui = createSegmentationUI(parentTab)
 
     ui.OperationDropDown.Items = {
         'Sobel Edge Detection'
+        'Prewitt Edge Detection'
+        'Canny Edge Detection'
+        'Global Thresholding'
+        'Otsu Thresholding'
+        'Adaptive Thresholding'
+        'Watershed Segmentation'
     };
 
     ui.OperationDropDown.Position = [140 115 350 22];
@@ -132,6 +138,30 @@ function ui = createSegmentationUI(parentTab)
             case 'Sobel Edge Detection'
 
                 output = sobelEdge(originalImage);
+
+            case 'Prewitt Edge Detection'
+
+                output = prewittEdge(originalImage);
+
+            case 'Canny Edge Detection'
+
+                output = cannyEdge(originalImage);
+
+            case 'Global Thresholding'
+
+                output = globalThreshold(originalImage);
+
+            case 'Otsu Thresholding'
+
+                output = otsuThreshold(originalImage);
+
+            case 'Adaptive Thresholding'
+
+                output = adaptiveThreshold(originalImage);
+
+            case 'Watershed Segmentation'
+
+                output = watershedSegmentation(originalImage);
 
             otherwise
 
