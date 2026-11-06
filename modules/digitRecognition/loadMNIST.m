@@ -1,64 +1,26 @@
-
 function [images, labels] = loadMNIST(datasetPath, split)
-% LOADMNIST Load handwritten digit images and labels.
-%
-% images: 28 x 28 x N array of grayscale images
-% labels: N x 1 numeric array containing digits 0-9
-
-    if strcmpi(split, 'train')
-        imageFile = 'train-images-idx3-ubyte';
-        labelFile = 'train-labels-idx1-ubyte';
-    elseif strcmpi(split, 'test')
-        imageFile = 't10k-images-idx3-ubyte';
-        labelFile = 't10k-labels-idx1-ubyte';
-    else
-        error('Split must be train or test.');
+% LOADMNIST Read and validate uncompressed MNIST IDX image and label files.
+    split = validatestring(split, {'train','test'});
+    if strcmp(split, 'train'), prefix = 'train'; else, prefix = 't10k'; end
+    [header, pixels] = readIDX(fullfile(datasetPath, [prefix '-images-idx3-ubyte']), 4, 2051);
+    count = header(2); rows = header(3); columns = header(4);
+    if rows ~= 28 || columns ~= 28 || count < 1 || numel(pixels) ~= count*rows*columns
+        error('loadMNIST:Images', 'MNIST images must contain complete 28 x 28 records.');
     end
-
-    % Read images
-    fid = fopen(fullfile(datasetPath, imageFile), 'r', 'b');
-    if fid == -1
-        error('Cannot open MNIST image file.');
+    images = permute(reshape(pixels, columns, rows, count), [2 1 3]);
+    [labelHeader, values] = readIDX(fullfile(datasetPath, [prefix '-labels-idx1-ubyte']), 2, 2049);
+    if labelHeader(2) ~= count || numel(values) ~= count || any(values > 9)
+        error('loadMNIST:Labels', 'MNIST labels must match the image count and contain digits 0-9.');
     end
-
-    imageMagic = fread(fid, 1, 'int32');
-    numImages = fread(fid, 1, 'int32');
-    numRows = fread(fid, 1, 'int32');
-    numCols = fread(fid, 1, 'int32');
-
-    if imageMagic ~= 2051
-        fclose(fid);
-        error('Invalid MNIST image file.');
+    labels = double(values);
+end
+function [header, values] = readIDX(filename, headerLength, magic)
+    fid = fopen(filename, 'r', 'b');
+    if fid == -1, error('loadMNIST:File', 'Cannot open %s. Provide uncompressed MNIST files.', filename); end
+    cleanup = onCleanup(@() fclose(fid)); %#ok<NASGU>
+    header = fread(fid, headerLength, 'uint32=>double');
+    if numel(header) ~= headerLength || header(1) ~= magic
+        error('loadMNIST:Header', 'Invalid or incomplete IDX header: %s', filename);
     end
-
-    rawImages = fread(fid, numRows*numCols*numImages, 'uint8=>uint8');
-    fclose(fid);
-
-    if numel(rawImages) ~= numRows*numCols*numImages
-        error('MNIST image file is incomplete.');
-    end
-
-    images = reshape(rawImages, numCols, numRows, numImages);
-    images = permute(images, [2 1 3]);
-
-    % Read labels
-    fid = fopen(fullfile(datasetPath, labelFile), 'r', 'b');
-    if fid == -1
-        error('Cannot open MNIST label file.');
-    end
-
-    labelMagic = fread(fid, 1, 'int32');
-    numLabels = fread(fid, 1, 'int32');
-
-    if labelMagic ~= 2049
-        fclose(fid);
-        error('Invalid MNIST label file.');
-    end
-
-    labels = fread(fid, numLabels, 'uint8=>double');
-    fclose(fid);
-
-    if numel(labels) ~= numImages
-        error('Number of images and labels does not match.');
-    end
+    values = fread(fid, Inf, 'uint8=>uint8');
 end

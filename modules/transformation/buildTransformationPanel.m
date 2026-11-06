@@ -1,9 +1,13 @@
-function buildTransformationPanel(parent)
+function ui = buildTransformationPanel(parent, workspace)
     % Build the Module 3 (Geometric Transformations and Interpolation) GUI
     % inside any container: a uifigure, uipanel or the app's Transformation tab.
     %
     %   buildTransformationPanel(app.TransformationTab)
 
+    if nargin < 2, workspace = ImageWorkspace(); end
+    figure = ancestor(parent, 'figure');
+    figure.Theme = 'light';
+    theme = toolboxTheme();
     operations = {'Translation', 'Scaling (Zoom)', 'Rotation', 'Affine Transformation', ...
                   'Radial Distortion Correction', 'Simulate Radial Distortion', ...
                   'Interpolation Comparison', 'Forward vs Reverse Mapping', 'Image Registration'};
@@ -15,16 +19,29 @@ function buildTransformationPanel(parent)
 
     %% Layout
     root = uigridlayout(parent, [1 2]);
-    root.ColumnWidth = {280, '1x'};
-    root.Padding = [8 8 8 8];
+    root.ColumnWidth = {310, '1x'};
+    root.Padding = [12 12 12 12];
+    root.ColumnSpacing = 14;
+    root.BackgroundColor = theme.Background;
 
-    controls = uigridlayout(root, [27 2]);
+    controls = uigridlayout(root, [55 2]);
     controls.ColumnWidth = {'1x', '1x'};
-    controls.RowHeight = repmat({22}, 1, 27);
-    controls.RowSpacing = 5;
+    controls.RowHeight = repmat({26}, 1, 55);
+    controls.RowSpacing = 7;
+    controls.Padding = [14 14 14 14];
+    controls.BackgroundColor = theme.Surface;
     controls.Scrollable = 'on';
 
-    row = 0;
+    row = 1;
+    heading = uilabel(controls, 'Text', 'Transformation', 'FontSize', 21, ...
+        'FontWeight', 'bold', 'FontColor', theme.Text);
+    heading.Layout.Row = row; heading.Layout.Column = [1 2];
+    controls.RowHeight{row} = 32;
+    row = row + 1;
+    caption = uilabel(controls, 'Text', 'Explore geometry, interpolation, distortion, and image registration.', ...
+        'WordWrap', 'on', 'FontColor', theme.Muted);
+    caption.Layout.Row = row; caption.Layout.Column = [1 2];
+    controls.RowHeight{row} = 48;
     loadButton = addButton('Load Image', @onLoadImage, 'Load the image to transform');
     sampleButton = uibutton(controls, 'Text', 'Sample Image', 'ButtonPushedFcn', @onSampleImage, ...
         'Tooltip', 'Load a sample image shipped with MATLAB');
@@ -61,6 +78,7 @@ function buildTransformationPanel(parent)
     applyButton = uibutton(controls, 'Text', 'Apply', 'ButtonPushedFcn', @onApply, ...
         'FontWeight', 'bold');
     applyButton.Layout.Row = row; applyButton.Layout.Column = [1 2];
+    applyButton.BackgroundColor = theme.Accent; applyButton.FontColor = [1 1 1];
 
     resetButton = addButton('Reset Parameters', @onReset, 'Restore default parameter values');
     chainButton = uibutton(controls, 'Text', 'Use Result as Input', 'ButtonPushedFcn', @onChain, ...
@@ -69,15 +87,20 @@ function buildTransformationPanel(parent)
     resetButton.Layout.Column = 1;
     saveButton = addButton('Save Result', @onSave, 'Save the transformed image');
     saveButton.Layout.Column = [1 2];
+    sendButton = addButton('Send to Digit Recognition', @onSend, 'Use this transformed result for recognition');
+    sendButton.BackgroundColor = theme.Accent; sendButton.FontColor = [1 1 1];
+    addButton('Reset to Original', @(~, ~) workspace.reset(), 'Restore the originally uploaded shared image');
 
     row = row + 1;
     statusLabel = uilabel(controls, 'Text', 'Load an image to begin.', 'WordWrap', 'on', ...
         'VerticalAlignment', 'top');
     statusLabel.Layout.Row = [row row + 5]; statusLabel.Layout.Column = [1 2];
+    controls.RowHeight = controls.RowHeight(1:row + 5);
 
     display = uigridlayout(root, [2 2]);
     display.RowHeight = {'1x', 0};
     display.Padding = [0 0 0 0];
+    display.BackgroundColor = theme.Background;
     axesList = gobjects(1, 4);
     for k = 1:4
         axesList(k) = uiaxes(display);
@@ -89,6 +112,15 @@ function buildTransformationPanel(parent)
     showPanels({'Original', 'Transformed'});
 
     onOperationChanged();
+    listener = addlistener(workspace, 'ImageChanged', @(~, ~) onSharedImage());
+    if ~isempty(workspace.CurrentImage), onSharedImage(); end
+    ui = struct('OperationDropDown', operationDropDown, 'ApplyButton', applyButton, ...
+        'SendButton', sendButton, 'Axes', axesList, 'Workspace', workspace, ...
+        'Listener', listener, 'GetResult', @getResult, 'StatusLabel', statusLabel);
+
+    function result = getResult()
+        result = resultImage;
+    end
 
     %% Control builders
 
@@ -103,11 +135,15 @@ function buildTransformationPanel(parent)
         row = row + 1;
         l = uilabel(controls, 'Text', label);
         l.Layout.Row = row; l.Layout.Column = 1;
+        if strcmp(label, 'Operation')
+            l.Layout.Column = [1 2]; row = row + 1;
+        end
         d = uidropdown(controls, 'Items', items);
         if ~isempty(callback)
             d.ValueChangedFcn = callback;
         end
         d.Layout.Row = row; d.Layout.Column = 2;
+        if strcmp(label, 'Operation'), d.Layout.Column = [1 2]; end
     end
 
     function f = addNumber(label, value)
@@ -123,15 +159,16 @@ function buildTransformationPanel(parent)
     function onLoadImage(~, ~)
         img = pickImage('Select an Image');
         if ~isempty(img)
-            setOriginal(img);
+            workspace.loadImage(img, 'Uploaded image');
         end
     end
 
     function onSampleImage(~, ~)
-        setOriginal(imread('peppers.png'));
+        workspace.loadImage(imread('peppers.png'), 'Sample image');
     end
 
     function onLoadSecond(~, ~)
+        if ~requireImage(), return; end
         img = pickImage('Select the Moving Image');
         if ~isempty(img)
             secondImage = img;
@@ -232,7 +269,6 @@ function buildTransformationPanel(parent)
             end
         catch err
             setStatus(['Error: ' err.message]);
-            uialert(ancestor(parent, 'figure'), err.message, 'Transformation Error');
         end
     end
 
@@ -248,8 +284,18 @@ function buildTransformationPanel(parent)
             setStatus('There is no result to use yet.');
             return;
         end
-        setOriginal(resultImage);
+        workspace.useResult(resultImage, 'Transformation result');
         setStatus('Result is now the input image.');
+    end
+
+    function onSend(~, ~)
+        if isempty(resultImage), setStatus('Apply a transformation first.'); return; end
+        workspace.sendToRecognition(resultImage, operationDropDown.Value);
+    end
+
+    function onSharedImage()
+        secondImage = [];
+        setOriginal(workspace.CurrentImage);
     end
 
     function onSave(~, ~)
@@ -273,7 +319,7 @@ function buildTransformationPanel(parent)
         end
         % Zoom into a central crop so the differences between methods are visible
         [h, w, ~] = size(originalImage);
-        cropSize = max(8, round(min(h, w) / (2 * zoom)));
+        cropSize = min([h, w, max(8, round(min(h, w) / (2 * zoom)))]);
         r0 = round((h - cropSize) / 2) + 1;
         c0 = round((w - cropSize) / 2) + 1;
         crop = originalImage(r0:r0 + cropSize - 1, c0:c0 + cropSize - 1, :);
@@ -320,7 +366,9 @@ function buildTransformationPanel(parent)
         % Holes: pixels covered by the transformed image but never written to
         covered = affineTransform(true(size(originalImage, 1), size(originalImage, 2)), ...
             A, 'nearest', 'reverse', view);
-        holes = nnz(covered & all(forwardNearest == 0, 3));
+        written = affineTransform(true(size(originalImage, 1), size(originalImage, 2)), ...
+            A, 'nearest', 'forward', view);
+        holes = nnz(covered & ~written);
         setStatus(sprintf(['Rotation %g deg, scale %g x %g. Forward mapping pushes each source ' ...
             'pixel to the output; with nearest splatting %d covered pixels (%.1f%%) are never ' ...
             'written (holes). Bilinear splatting fills small gaps but still breaks up at large ' ...
@@ -358,8 +406,11 @@ function buildTransformationPanel(parent)
         % Alignment quality: correlation between fixed and registered where they overlap
         fixedGray = im2double(im2gray(originalImage));
         registeredGray = im2double(im2gray(registered));
-        overlap = registeredGray > 0;
-        quality = corr2(fixedGray(overlap), registeredGray(overlap));
+        overlap = info.overlapMask;
+        quality = NaN;
+        if nnz(overlap) > 1 && std(fixedGray(overlap)) > 0 && std(registeredGray(overlap)) > 0
+            quality = corr2(fixedGray(overlap), registeredGray(overlap));
+        end
 
         note = '';
         if strcmp(method, 'mutualinfo')
@@ -380,7 +431,8 @@ function buildTransformationPanel(parent)
         img = [];
         [file, path] = uigetfile({'*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff', 'Image Files'}, prompt);
         if isequal(file, 0), return; end
-        img = imread(fullfile(path, file));
+        try, img = readToolboxImage(fullfile(path, file));
+        catch exception, setStatus(exception.message); end
     end
 
     function setOriginal(img)
@@ -434,6 +486,16 @@ function buildTransformationPanel(parent)
 
     function setEnabled(components, enabled)
         set(components, 'Enable', matlab.lang.OnOffSwitchState(enabled));
+        rows = unique(arrayfun(@(component) component.Layout.Row, components));
+        for selectedRow = rows
+            if enabled, controls.RowHeight{selectedRow} = 26;
+            else, controls.RowHeight{selectedRow} = 0; end
+            for child = controls.Children'
+                if isequal(child.Layout.Row, selectedRow)
+                    child.Visible = matlab.lang.OnOffSwitchState(enabled);
+                end
+            end
+        end
     end
 
     function setStatus(text)

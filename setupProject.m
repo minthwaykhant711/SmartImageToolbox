@@ -1,19 +1,12 @@
-
-% setupProject.m
-% Initialize Smart Image Processing Toolbox
-
+% SETUPPROJECT Initialize source paths without adding nonexistent folders.
 root = fileparts(mfilename('fullpath'));
-
-% Add project source folders to MATLAB path
+addpath(root);
 addpath(fullfile(root, 'app'));
 addpath(genpath(fullfile(root, 'modules')));
-addpath(genpath(fullfile(root, 'recognition')));
-
-% Keep data and model directories as absolute paths
-projectPaths.root = root;
-projectPaths.models = fullfile(root, 'models');
-projectPaths.data = fullfile(root, 'data');
-projectPaths.assets = fullfile(root, 'assets');
-
-disp('Smart Image Processing Toolbox initialized.');
-disp(['Project root: ', root]);
+projectPaths = getProjectPaths();
+fprintf('Smart Image Toolbox initialized: %s\n', root);
+if isempty(projectPaths.data)
+    disp('MNIST is optional for the app. For training, set SMART_IMAGE_DATASET or pass a dataset folder.');
+else
+    fprintf('MNIST dataset: %s\n', projectPaths.data);
+end

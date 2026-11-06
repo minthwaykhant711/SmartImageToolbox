@@ -1,0 +1,26 @@
+{
+  "matlabRelease": "R2026a Update 4",
+  "automatedTests": 21,
+  "passed": 21,
+  "testSeed": 42,
+  "heldOutMNISTImages": 1000,
+  "uploadPreprocessingAccuracy": {
+    "KNN": 0.94,
+    "ANN": 0.94
+  },
+  "trainingSmoke": {
+    "trainingSamples": 1000,
+    "knnSamples": 800,
+    "epochs": 1,
+    "testSamples": 100,
+    "separateModelDirectory": true
+  },
+  "uiChecks": [
+    "enhancement",
+    "segmentation",
+    "transformation",
+    "digit recognition",
+    "all enhancement/segmentation operation callbacks"
+  ],
+  "originalModelWeightsPreserved": true
+}

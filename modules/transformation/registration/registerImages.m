@@ -26,6 +26,8 @@ function [registered, T, info] = registerImages(fixed, moving, method)
     end
 
     registered = warpToFrame(moving, T, size(fixed, 1), size(fixed, 2));
+    info.overlapMask = warpToFrame(true(size(moving, 1), size(moving, 2)), ...
+        T, size(fixed, 1), size(fixed, 2));
 end
 
 function gray = toGrayDouble(img)

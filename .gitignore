@@ -15,3 +15,7 @@ data/test/
 
 # MNIST dataset (too large for GitHub)
 /datasets/mnist/
+
+# Local backups made by upgrades and retraining
+.toolbox-backups/
+models/backup-*/

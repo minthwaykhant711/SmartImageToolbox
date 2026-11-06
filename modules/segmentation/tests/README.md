@@ -1,21 +1,12 @@
 # Segmentation tests
 
-Run the automated tests from the project root in MATLAB after running
-`setupProject`:
+From the project root, run `setupProject`, then `runProjectTests` for the full automated suite. To run only the original algorithm tests:
 
 ```matlab
 results = runtests('modules/segmentation/tests');
 table(results)
 ```
 
-The tests use a synthetic grayscale image and its RGB equivalent. They verify
-the six new algorithms, existing Sobel processing, output dimensions and types,
-empty-input errors, the global-threshold default, and the GUI operation list.
+The expanded tests in `tests/testRequiredSegmentation.m` cover morphology, shape filtering, RGB/HSV selection (including wrapped hue), dark foreground, and region palettes larger than 256 labels. `tests/testIntegratedWorkflow.m` checks the GUI and transfer to recognition.
 
-For a manual GUI test, open `SmartImageToolbox.mlapp`, run the app, choose its
-Segmentation tab, and upload a PNG/JPEG/BMP image. Select each operation and
-press **Apply**. The original image should stay in the left axes, while the
-right axes updates with a binary image for edge/threshold operations or a
-watershed label matrix for watershed segmentation. Test with both grayscale and
-RGB images. Watershed labels use zero for ridge lines and positive integers for
-regions; MATLAB displays the label matrix in the processed axes.
+For a visual check, run the app and use the Segmentation tab. Upload a grayscale or RGB image, choose an operation, and press Apply. Comparison buttons show the edge detectors or segmentation alternatives together. Watershed labels are displayed with stable colors; save MAT to retain the identifiers or PNG to retain the visualization. Label images are not sent directly to recognition. Choose a binary mask operation for that workflow.

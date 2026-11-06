@@ -22,6 +22,12 @@ function output = warpImage(img, T, method, mapping, outputView)
         outputView = 'same';
     end
 
+    ImageWorkspace.validateImage(img);
+    validateattributes(T, {'numeric'}, {'size', [3 3], 'real', 'finite'});
+    if rcond(double(T)) < 1e-12
+        error('warpImage:singular', 'The transformation matrix must be invertible.');
+    end
+    method = validatestring(method, {'nearest', 'bilinear', 'bicubic'});
     [h, w, c] = size(img);
 
     % Output frame: x0/y0 is the coordinate of output pixel (1,1)
@@ -34,8 +40,8 @@ function output = warpImage(img, T, method, mapping, outputView)
             corners = corners(1:2, :) ./ corners(3, :);
             xMin = min(corners(1, :)); xMax = max(corners(1, :));
             yMin = min(corners(2, :)); yMax = max(corners(2, :));
-            outW = max(1, round(xMax - xMin));
-            outH = max(1, round(yMax - yMin));
+            outW = max(1, ceil(xMax - xMin - 1e-10));
+            outH = max(1, ceil(yMax - yMin - 1e-10));
             x0 = xMin + 0.5; y0 = yMin + 0.5;
         otherwise
             error('warpImage:outputView', 'Unknown output view "%s".', outputView);

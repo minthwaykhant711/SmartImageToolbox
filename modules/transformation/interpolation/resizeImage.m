@@ -7,6 +7,11 @@ function output = resizeImage(img, scale, method)
         method = 'bilinear';
     end
 
+    ImageWorkspace.validateImage(img);
+    validateattributes(scale, {'numeric'}, {'vector', 'nonempty', 'real', 'finite', 'positive'});
+    if ~ismember(numel(scale), [1 2]) || (numel(scale) == 2 && any(scale ~= round(scale)))
+        error('resizeImage:size', 'Use a positive scale factor or an integer [rows columns] size.');
+    end
     [h, w, ~] = size(img);
     if isscalar(scale)
         newH = max(1, round(h * scale));

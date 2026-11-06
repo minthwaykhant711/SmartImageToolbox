@@ -7,6 +7,10 @@ function A = buildAffineMatrix(imgSize, angleDeg, sx, sy, shx, shy, tx, ty)
     %   shx, shy - horizontal and vertical shear factors
     %   tx, ty   - translation in pixels (right, down)
 
+    validateattributes([angleDeg sx sy shx shy tx ty], {'numeric'}, {'real', 'finite'});
+    if sx <= 0 || sy <= 0
+        error('buildAffineMatrix:scale', 'Scale factors must be positive.');
+    end
     cx = (imgSize(2) + 1) / 2;
     cy = (imgSize(1) + 1) / 2;
     theta = -deg2rad(angleDeg);

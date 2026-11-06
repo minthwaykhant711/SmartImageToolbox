@@ -1,0 +1,5 @@
+Model,InputMode,SampleCount,Accuracy,Seconds,MillisecondsPerImage,RejectedCount
+KNN,Original MNIST,1000,0.94,1.369170375,1.369170375,0
+KNN,Upload preprocessing,1000,0.94,1.26806875,1.26806875,0
+ANN,Original MNIST,1000,0.939,0.189327666666667,0.189327666666667,0
+ANN,Upload preprocessing,1000,0.94,0.210544541666667,0.210544541666667,0

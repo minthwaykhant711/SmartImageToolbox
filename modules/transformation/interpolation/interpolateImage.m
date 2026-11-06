@@ -13,6 +13,10 @@ function out = interpolateImage(img, X, Y, method, fillValue)
         fillValue = 0;
     end
 
+    ImageWorkspace.validateImage(img);
+    if ~isequal(size(X), size(Y))
+        error('interpolateImage:coordinates', 'X and Y must have the same dimensions.');
+    end
     img = double(img);
     [h, w, c] = size(img);
     outSize = size(X);
@@ -22,6 +26,8 @@ function out = interpolateImage(img, X, Y, method, fillValue)
 
     % Samples falling outside the image are filled, the rest are interpolated
     inside = X >= 0.5 & X <= w + 0.5 & Y >= 0.5 & Y <= h + 0.5;
+    X(~inside) = 1;
+    Y(~inside) = 1;
 
     switch lower(method)
         case 'nearest'
