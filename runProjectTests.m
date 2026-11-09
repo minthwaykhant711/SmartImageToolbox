@@ -1,12 +1,7 @@
 function results = runProjectTests()
-% RUNPROJECTTESTS Run automated checks; visual demo scripts are kept separate.
+% RUNPROJECTTESTS Run every automated test in tests/.
     root = fileparts(mfilename('fullpath'));
     run(fullfile(root, 'setupProject.m'));
-    files = {fullfile(root,'modules','segmentation','tests','testSegmentationAlgorithms.m'), ...
-        fullfile(root,'tests','testDigitPipeline.m'), ...
-        fullfile(root,'tests','testRequiredSegmentation.m'), ...
-        fullfile(root,'tests','testTransformationCore.m'), ...
-        fullfile(root,'tests','testIntegratedWorkflow.m')};
-    results = runtests(files);
+    results = runtests(fullfile(root, 'tests'));
     assert(all([results.Passed]), 'runProjectTests:Failure', 'At least one automated test failed.');
 end
