@@ -68,6 +68,22 @@ Training uses a seeded 85/15 split of the sampled training set, saves class orde
 results = runProjectTests;
 ```
 
-The automated checks cover foreground/polarity/noise handling, morphological behavior, RGB/HSV selection, shape filtering, transform identity/boundaries, model inference, and the integrated image workflow. The original `tests/testBrightness.m` and similar scripts remain manual visual demonstrations.
+This runs every test in `tests/`. The automated checks cover the segmentation functions and their input validation, foreground/polarity/noise handling, morphological behavior, RGB/HSV selection, shape filtering, transform identity/boundaries, model inference, every enhancement and segmentation GUI callback, and the integrated image workflow. To run one file, use for example `runtests('tests/testTransformationCore.m')`.
 
-For hidden GUI tests set `SMART_IMAGE_TOOLBOX_VISIBLE` to `off`; leave it unset for normal use. See `docs/` for the guideline mapping and report/presentation drafts.
+For hidden GUI tests set `SMART_IMAGE_TOOLBOX_VISIBLE` to `off`; leave it unset for normal use.
+
+## Project layout
+
+| Path | Contents |
+|---|---|
+| `runToolbox.m`, `setupProject.m`, `runProjectTests.m` | Launch the app, add folders to the path, run the tests |
+| `app/` | `SmartImageToolbox.mlapp` and `initializeToolboxApp.m`, which builds the four tabs at startup |
+| `modules/common/` | Shared image workspace, panel layout, theme, paths and image reading |
+| `modules/enhancement/` | Module 1: `histogram/`, `spatial/`, `frequency/` functions and the Enhancement tab |
+| `modules/segmentation/` | Module 2: `edgeDetection/`, `thresholding/`, `regionBased/`, `color/`, `morphology/` and the Segmentation tab |
+| `modules/transformation/` | Module 3: `geometric/`, `interpolation/`, `registration/` and the Transformation tab |
+| `modules/digitRecognition/` | Topic 15: preprocessing, ANN/KNN training, evaluation and the recognition tab |
+| `tests/` | Automated tests, run by `runProjectTests` |
+| `models/` | Trained ANN and KNN models |
+| `assets/` | Ten sample digits for the GUI demo (MNIST itself is not committed) |
+| `results/` | Model evaluation: accuracy table, confusion matrices, verification record |

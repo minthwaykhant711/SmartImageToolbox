@@ -19,3 +19,4 @@ data/test/
 # Local backups made by upgrades and retraining
 .toolbox-backups/
 models/backup-*/
+.claude
