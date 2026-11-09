@@ -11,11 +11,11 @@ function state = initializeToolboxApp(app)
     app.UIFigure.Position = [80 70 1320 860];
     app.UIFigure.Color = theme.Background;
     root = uigridlayout(app.UIFigure, [2 1]);
-    root.RowHeight = {62, '1x'};
+    root.RowHeight = {96, '1x'};
     root.Padding = [14 10 14 14];
     root.BackgroundColor = theme.Background;
-    header = uigridlayout(root, [2 2]);
-    header.RowHeight = {30, 22}; header.ColumnWidth = {'1x', 360};
+    header = uigridlayout(root, [3 2]);
+    header.RowHeight = {30, 22, 24}; header.ColumnWidth = {'1x', 360};
     header.Padding = [4 0 4 0]; header.BackgroundColor = theme.Background;
     titleLabel = uilabel(header, 'Text', 'Smart Image Toolbox', 'FontSize', 24, ...
         'FontWeight', 'bold', 'FontColor', theme.Text);
@@ -23,6 +23,11 @@ function state = initializeToolboxApp(app)
     subtitle = uilabel(header, 'Text', 'Enhance  /  Segment  /  Transform  /  Recognize', ...
         'FontSize', 12, 'FontColor', theme.Muted);
     subtitle.Layout.Row = 2; subtitle.Layout.Column = 1;
+    teamLabel = uilabel(header, 'Text', ...
+        'Team Member - Min Thway Khant, Myo Thet Paing, Zaw Linn Phyo', ...
+        'FontSize', 13, 'FontWeight', 'bold', 'FontColor', theme.Muted, ...
+        'HorizontalAlignment', 'center');
+    teamLabel.Layout.Row = 3; teamLabel.Layout.Column = [1 2];
     source = uilabel(header, 'Text', 'Upload an image in any tab to begin', ...
         'HorizontalAlignment', 'right', 'WordWrap', 'on', 'FontColor', theme.Muted);
     source.Layout.Row = [1 2]; source.Layout.Column = 2;
