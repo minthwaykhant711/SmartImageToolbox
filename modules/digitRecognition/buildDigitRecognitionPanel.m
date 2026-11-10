@@ -92,9 +92,11 @@ function ui = buildDigitRecognitionPanel(parent, workspace, projectRoot)
             for index = 1:numel(names)
                 result = results{index};
                 ax = panel.Axes(index + 2);
+                resetChartAxes(ax);
                 bar(ax, 0:9, reorderScores(result), 'FaceColor', theme.Accent);
                 axis(ax, 'on'); xlim(ax, [-0.75 9.75]); ylim(ax, [0 1]);
                 ax.XTick = 0:9; xlabel(ax, 'Digit'); ylabel(ax, 'Model score');
+                lockAxes(ax);
                 title(ax, [result.Model ' scores']);
                 lines{index} = sprintf('%s: %s', result.Model, result.PredictedDigit);
                 times{index} = sprintf('%s %.1f ms', result.Model, result.Seconds * 1000);

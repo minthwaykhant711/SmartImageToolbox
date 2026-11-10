@@ -61,10 +61,8 @@ classdef ImageProcessingPanel < handle
                 obj.Axes(index) = uiaxes(canvas);
                 obj.Axes(index).Layout.Row = ceil(index / 2);
                 obj.Axes(index).Layout.Column = mod(index - 1, 2) + 1;
-                obj.Axes(index).Color = theme.Surface;
                 obj.Axes(index).FontName = theme.Font;
-                obj.Axes(index).Toolbar.Visible = 'on';
-                axis(obj.Axes(index), 'off');
+                showImageInBox(obj.Axes(index), []);
             end
             obj.showPanels({'Input image', 'Result'});
             obj.Listener = addlistener(workspace, 'ImageChanged', @(~, ~) obj.onImageChanged());
@@ -186,7 +184,7 @@ classdef ImageProcessingPanel < handle
         end
         function showImage(obj, index, image, name)
             if isempty(image), return; end
-            imshow(image, 'Parent', obj.Axes(index));
+            showImageInBox(obj.Axes(index), image);
             title(obj.Axes(index), name, 'Interpreter', 'none');
         end
         function setStatus(obj, text)

@@ -106,8 +106,7 @@ function ui = buildTransformationPanel(parent, workspace)
         axesList(k) = uiaxes(display);
         axesList(k).Layout.Row = ceil(k / 2);
         axesList(k).Layout.Column = mod(k - 1, 2) + 1;
-        axis(axesList(k), 'off');
-        axesList(k).Toolbar.Visible = 'on';
+        showImageInBox(axesList(k), []);
     end
     showPanels({'Original', 'Transformed'});
 
@@ -473,7 +472,7 @@ function ui = buildTransformationPanel(parent, workspace)
 
     function showImage(k, img, label)
         ax = axesList(k);
-        imshow(img, 'Parent', ax);
+        showImageInBox(ax, img);
         title(ax, sprintf('%s  [%dx%d]', label, size(img, 1), size(img, 2)), 'Interpreter', 'none');
     end
 

@@ -5,5 +5,6 @@ function theme = toolboxTheme()
     theme.Text = [0.12 0.17 0.24];
     theme.Muted = [0.38 0.43 0.50];
     theme.Accent = [0.12 0.34 0.66];
+    theme.Border = [0.82 0.85 0.89];
     theme.Font = 'Helvetica';
 end

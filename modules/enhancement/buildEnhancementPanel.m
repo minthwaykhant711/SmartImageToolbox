@@ -70,9 +70,11 @@ function ui = buildEnhancementPanel(parent, workspace)
             gray = im2single(images{index});
             if size(gray, 3) == 3, gray = rgb2gray(gray); end
             [counts, centers] = imhist(gray);
+            resetChartAxes(panel.Axes(index + 2));
             bar(panel.Axes(index + 2), centers, counts, 1, 'EdgeColor', 'none');
             axis(panel.Axes(index + 2), 'on');
             xlabel(panel.Axes(index + 2), 'Intensity'); ylabel(panel.Axes(index + 2), 'Pixels');
+            lockAxes(panel.Axes(index + 2));
         end
         title(panel.Axes(3), 'Input histogram'); title(panel.Axes(4), 'Result histogram');
     end
